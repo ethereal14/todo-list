@@ -3,7 +3,7 @@ use dotenv::dotenv;
 use sqlx::mysql::MySqlPoolOptions;
 use std::{env, io::Result, sync::Mutex};
 
-use crate::{routers::general_router, state::AppState};
+use crate::{routers::*, state::AppState};
 
 mod dbaccess;
 mod errors;
@@ -36,6 +36,7 @@ async fn main() -> Result<()> {
             .service(hello)
             .app_data(app_state.clone())
             .configure(general_router)
+            .configure(todo_list_routers)
     })
     .bind("127.0.0.1:8000")?
     .run()
