@@ -31,3 +31,18 @@ pub async fn get_todo_list_detail_db(
 
     Ok((list_rows, item_rows))
 }
+
+pub async fn post_new_todo_list_db(
+    pool: &MySqlPool,
+    new_todo_list: CreateTodoList,
+) -> Result<(), Error> {
+    let _insert_query = sqlx::query!(
+        "INSERT INTO todo_list (title) VALUES (?)",
+        new_todo_list.title
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    Ok(())
+}

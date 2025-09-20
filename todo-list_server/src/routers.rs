@@ -9,6 +9,7 @@ pub fn todo_list_routers(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/todos")
             .route("/", web::get().to(get_all_todo_list))
+            .route("/", web::post().to(post_new_todo_list))
             .route("/{id}", web::get().to(get_todo_list_detail)),
     );
 }
