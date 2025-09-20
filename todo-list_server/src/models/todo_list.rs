@@ -1,3 +1,4 @@
+use crate::errors::TodoListError;
 use std::io;
 
 use actix_web::web;
@@ -15,7 +16,7 @@ pub struct CreateTodoList {
 }
 
 impl TryFrom<web::Json<CreateTodoList>> for CreateTodoList {
-    type Error = io::Error;
+    type Error = TodoListError;
 
     fn try_from(value: web::Json<CreateTodoList>) -> Result<Self, Self::Error> {
         Ok(CreateTodoList {

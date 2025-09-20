@@ -1,10 +1,11 @@
 use sqlx::MySqlPool;
 use std::io::Error;
 
+use crate::errors::TodoListError;
 use crate::models::todo_item::*;
 use crate::models::todo_list::*;
 
-pub async fn get_all_todo_list_db(pool: &MySqlPool) -> Result<Vec<TodoList>, Error> {
+pub async fn get_all_todo_list_db(pool: &MySqlPool) -> Result<Vec<TodoList>, TodoListError> {
     let rows: Vec<TodoList> = sqlx::query_as("SELECT * FROM todo_list")
         .fetch_all(pool)
         .await
@@ -16,18 +17,16 @@ pub async fn get_all_todo_list_db(pool: &MySqlPool) -> Result<Vec<TodoList>, Err
 pub async fn get_todo_list_detail_db(
     pool: &MySqlPool,
     id: i32,
-) -> Result<(TodoList, Vec<TodoItem>), Error> {
+) -> Result<(TodoList, Vec<TodoItem>), TodoListError> {
     let list_rows: TodoList = sqlx::query_as("SELECT * FROM todo_list WHERE id = ?")
         .bind(id)
         .fetch_one(pool)
-        .await
-        .unwrap();
+        .await?;
 
     let item_rows: Vec<TodoItem> = sqlx::query_as("SELECT * FROM todo_item WHERE list_id = ?")
         .bind(id)
         .fetch_all(pool)
-        .await
-        .unwrap();
+        .await?;
 
     Ok((list_rows, item_rows))
 }
@@ -35,14 +34,13 @@ pub async fn get_todo_list_detail_db(
 pub async fn post_new_todo_list_db(
     pool: &MySqlPool,
     new_todo_list: CreateTodoList,
-) -> Result<(), Error> {
+) -> Result<String, TodoListError> {
     let _insert_query = sqlx::query!(
         "INSERT INTO todo_list (title) VALUES (?)",
         new_todo_list.title
     )
     .execute(pool)
-    .await
-    .unwrap();
+    .await?;
 
-    Ok(())
+    Ok(format!("post new todo_list {:?} success!", _insert_query))
 }
