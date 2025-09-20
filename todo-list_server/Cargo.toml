@@ -5,3 +5,10 @@ edition = "2024"
 
 [dependencies]
 actix-web = "4.0.0"
+serde = { version = "1", features = ["derive"] }
+dotenv = "0.15.0"
+sqlx = { version = "0.8.6", default-features = false, features = [
+    "mysql",
+    "runtime-tokio-rustls",
+    "macros",
+] }

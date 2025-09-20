@@ -1,6 +1,12 @@
 use actix_web::{App, HttpServer, Responder, get};
 use std::io::Result;
 
+mod dbaccess;
+mod models;
+mod handlers;
+mod errors;
+mod state;
+
 #[get("/")]
 async fn hello() -> impl Responder {
     format!("Hello world!")
