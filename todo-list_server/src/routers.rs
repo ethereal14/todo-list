@@ -6,5 +6,9 @@ pub fn general_router(cfg: &mut web::ServiceConfig) {
 }
 
 pub fn todo_list_routers(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/todos").route("/", web::get().to(get_all_todo_list)));
+    cfg.service(
+        web::scope("/todos")
+            .route("/", web::get().to(get_all_todo_list))
+            .route("/{id}", web::get().to(get_todo_list_detail)),
+    );
 }
