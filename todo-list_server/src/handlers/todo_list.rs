@@ -1,5 +1,5 @@
-use crate::dbaccess::todo_list;
 use crate::errors::TodoListError;
+use crate::models::todo_list::UpdateTodoList;
 use crate::state::AppState;
 use crate::{dbaccess::todo_list::*, models::todo_list::CreateTodoList};
 use actix_web::{HttpResponse, web};
@@ -38,6 +38,17 @@ pub async fn delete_todo_list_by_id(
     let id = params.into_inner();
 
     delete_todo_list_by_id_db(&app_state.db, id)
+        .await
+        .map(|response| HttpResponse::Ok().json(response))
+}
+
+pub async fn update_todo_list_by_id(
+    app_state: web::Data<AppState>,
+    update_todolist: web::Json<UpdateTodoList>,
+    params: web::Path<i32>,
+) -> Result<HttpResponse, TodoListError> {
+    let id = params.into_inner();
+    update_todo_list_by_id_db(&app_state.db, id, update_todolist.into())
         .await
         .map(|response| HttpResponse::Ok().json(response))
 }

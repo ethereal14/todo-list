@@ -1,5 +1,4 @@
 use crate::errors::TodoListError;
-use std::io;
 
 use actix_web::web;
 use serde::{Deserialize, Serialize};
@@ -27,7 +26,7 @@ impl TryFrom<web::Json<CreateTodoList>> for CreateTodoList {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct UpdateTodoList {
-    pub title: String,
+    pub title: Option<String>,
 }
 
 impl From<web::Json<UpdateTodoList>> for UpdateTodoList {

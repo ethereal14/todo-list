@@ -1,5 +1,6 @@
+use std::fmt::format;
+
 use sqlx::MySqlPool;
-use std::io::Error;
 
 use crate::errors::TodoListError;
 use crate::models::todo_item::*;
@@ -53,4 +54,28 @@ pub async fn delete_todo_list_by_id_db(pool: &MySqlPool, id: i32) -> Result<Stri
         .map_err(|_err| TodoListError::NotFound("todo_list id not found".into()))?;
 
     Ok(format!("deleted {:?} record", rows))
+}
+
+pub async fn update_todo_list_by_id_db(
+    pool: &MySqlPool,
+    id: i32,
+    update_todolist: UpdateTodoList,
+) -> Result<String, TodoListError> {
+    let current_todolist_row: TodoList = sqlx::query_as("SELECT * FROM todo_list WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
+        .map_err(|_err| TodoListError::NotFound("Todo list id not found".into()))?;
+
+    let title: String = if let Some(title) = update_todolist.title {
+        title
+    } else {
+        current_todolist_row.title
+    };
+
+    let row = sqlx::query!("UPDATE todo_list SET title = ? WHERE id = ?", title, id)
+        .execute(pool)
+        .await?;
+
+    Ok(format!("update {:?} record", row))
 }
