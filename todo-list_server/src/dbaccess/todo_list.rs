@@ -44,3 +44,13 @@ pub async fn post_new_todo_list_db(
 
     Ok(format!("post new todo_list {:?} success!", _insert_query))
 }
+
+pub async fn delete_todo_list_by_id_db(pool: &MySqlPool, id: i32) -> Result<String, TodoListError> {
+    println!("delete id: {}", id);
+    let rows = sqlx::query!("DELETE FROM todo_list WHERE id = ?", id)
+        .execute(pool)
+        .await
+        .map_err(|_err| TodoListError::NotFound("todo_list id not found".into()))?;
+
+    Ok(format!("deleted {:?} record", rows))
+}
