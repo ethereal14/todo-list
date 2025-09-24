@@ -1,4 +1,4 @@
-use crate::handlers::{general::*, todo_list::*};
+use crate::handlers::{general::*, todo_item::*, todo_list::*};
 use actix_web::web;
 
 pub fn general_router(cfg: &mut web::ServiceConfig) {
@@ -12,6 +12,7 @@ pub fn todo_list_routers(cfg: &mut web::ServiceConfig) {
             .route("/", web::post().to(post_new_todo_list))
             .route("/{id}", web::get().to(get_todo_list_detail))
             .route("/{id}", web::delete().to(delete_todo_list_by_id))
-            .route("/{id}", web::put().to(update_todo_list_by_id)),
+            .route("/{id}", web::put().to(update_todo_list_by_id))
+            .route("/{id}", web::post().to(post_new_todo_item)),
     );
 }
