@@ -1,4 +1,4 @@
-use actix_web::{error, http::StatusCode};
+use actix_web::{HttpResponse, error, http::StatusCode};
 use serde::Serialize;
 use sqlx::error::Error as SqlxError;
 use std::fmt;
@@ -48,6 +48,12 @@ impl error::ResponseError for TodoListError {
             TodoListError::NotFound(_msg) => StatusCode::NOT_FOUND,
             TodoListError::InvalidInput(_msg) => StatusCode::BAD_REQUEST,
         }
+    }
+
+    fn error_response(&self) -> actix_web::HttpResponse<actix_web::body::BoxBody> {
+        HttpResponse::build(self.status_code()).json(TodoListErrorResponse {
+            error_message: self.error_message(),
+        })
     }
 }
 

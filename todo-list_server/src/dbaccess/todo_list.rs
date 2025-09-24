@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use sqlx::MySqlPool;
 
 use crate::errors::TodoListError;
@@ -53,7 +51,10 @@ pub async fn delete_todo_list_by_id_db(pool: &MySqlPool, id: i32) -> Result<Stri
         .await
         .map_err(|_err| TodoListError::NotFound("todo_list id not found".into()))?;
 
-    Ok(format!("deleted {:?} record", rows))
+    match rows.rows_affected() {
+        0 => Err(TodoListError::NotFound("todo_list id not found".into())),
+        _ => Ok(format!("deleted {:?} record", rows)),
+    }
 }
 
 pub async fn update_todo_list_by_id_db(
