@@ -13,6 +13,14 @@ pub fn todo_list_routers(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(get_todo_list_detail))
             .route("/{id}", web::delete().to(delete_todo_list_by_id))
             .route("/{id}", web::put().to(update_todo_list_by_id))
-            .route("/{id}", web::post().to(post_new_todo_item)),
+            .route("/{id}", web::post().to(post_new_todo_item))
+            .route(
+                "/{list_id}/{item_id}",
+                web::delete().to(delete_todo_item_by_id),
+            )
+            .route(
+                "/{list_id}/{item_id}",
+                web::put().to(update_todo_item_by_id),
+            ),
     );
 }

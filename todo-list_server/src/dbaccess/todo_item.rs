@@ -20,12 +20,19 @@ pub async fn post_new_todo_item_db(
     Ok(format!("post new todo_item {:?} success!", _insert_query))
 }
 
-pub async fn delete_todo_item_by_id_db(pool: &MySqlPool, id: i32) -> Result<String, TodoListError> {
-    println!("delete id: {}", id);
-    let rows = sqlx::query!("DELETE FROM todo_item WHERE id = ?", id)
-        .execute(pool)
-        .await
-        .map_err(|_err| TodoListError::NotFound("todo_item id not found".into()))?;
+pub async fn delete_todo_item_by_id_db(
+    pool: &MySqlPool,
+    list_id: i32,
+    item_id: i32,
+) -> Result<String, TodoListError> {
+    let rows = sqlx::query!(
+        "DELETE FROM todo_item WHERE id = ? AND list_id = ?",
+        item_id,
+        list_id
+    )
+    .execute(pool)
+    .await
+    .map_err(|_err| TodoListError::NotFound("todo_item id not found".into()))?;
 
     match rows.rows_affected() {
         0 => Err(TodoListError::NotFound("todo_item id not found".into())),
@@ -35,17 +42,20 @@ pub async fn delete_todo_item_by_id_db(pool: &MySqlPool, id: i32) -> Result<Stri
 
 pub async fn update_todo_item_by_id_db(
     pool: &MySqlPool,
-    id: i32,
+    list_id: i32,
+    item_id: i32,
     update_todoitem: UpdateTodoItem,
 ) -> Result<String, TodoListError> {
-    let current_todoitem_row: TodoItem = sqlx::query_as("SELECT * FROM todo_item WHERE id = ?")
-        .bind(id)
-        .fetch_one(pool)
-        .await
-        .map_err(|_err| TodoListError::NotFound("Todo list id not found".into()))?;
+    let current_todoitem_row: TodoItem =
+        sqlx::query_as("SELECT * FROM todo_item WHERE id = ? AND list_id = ?")
+            .bind(item_id)
+            .bind(list_id)
+            .fetch_one(pool)
+            .await
+            .map_err(|_err| TodoListError::NotFound("Todo list id not found".into()))?;
 
     let todo_item = TodoItem {
-        id: id,
+        id: item_id,
         list_id: if let Some(list_id) = update_todoitem.list_id {
             list_id
         } else {
@@ -68,7 +78,7 @@ pub async fn update_todo_item_by_id_db(
         todo_item.title,
         todo_item.list_id,
         todo_item.checked,
-        id
+        item_id
     )
     .execute(pool)
     .await?;

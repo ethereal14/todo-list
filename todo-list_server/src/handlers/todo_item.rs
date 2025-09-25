@@ -18,58 +18,24 @@ pub async fn post_new_todo_item(
         .map(|response| HttpResponse::Ok().json(response))
 }
 
-// pub async fn delete_todo_item_by_id_db(pool: &MySqlPool, id: i32) -> Result<String, TodoListError> {
-//     println!("delete id: {}", id);
-//     let rows = sqlx::query!("DELETE FROM todo_item WHERE id = ?", id)
-//         .execute(pool)
-//         .await
-//         .map_err(|_err| TodoListError::NotFound("todo_item id not found".into()))?;
+pub async fn delete_todo_item_by_id(
+    app_state: web::Data<AppState>,
+    params: web::Path<(i32, i32)>,
+) -> Result<HttpResponse, TodoListError> {
+    let (_list_id, _item_id) = params.into_inner();
 
-//     match rows.rows_affected() {
-//         0 => Err(TodoListError::NotFound("todo_item id not found".into())),
-//         _ => Ok(format!("deleted {:?} record", rows)),
-//     }
-// }
+    delete_todo_item_by_id_db(&app_state.db, _list_id, _item_id)
+        .await
+        .map(|response| HttpResponse::Ok().json(response))
+}
 
-// pub async fn update_todo_item_by_id_db(
-//     pool: &MySqlPool,
-//     id: i32,
-//     update_todoitem: UpdateTodoItem,
-// ) -> Result<String, TodoListError> {
-//     let current_todoitem_row: TodoItem = sqlx::query_as("SELECT * FROM todo_item WHERE id = ?")
-//         .bind(id)
-//         .fetch_one(pool)
-//         .await
-//         .map_err(|_err| TodoListError::NotFound("Todo list id not found".into()))?;
-
-//     let todo_item = TodoItem {
-//         id: id,
-//         list_id: if let Some(list_id) = update_todoitem.list_id {
-//             list_id
-//         } else {
-//             current_todoitem_row.list_id
-//         },
-//         title: if let Some(title) = update_todoitem.title {
-//             title
-//         } else {
-//             current_todoitem_row.title
-//         },
-//         checked: if let Some(checked) = update_todoitem.checked {
-//             checked
-//         } else {
-//             current_todoitem_row.checked
-//         },
-//     };
-
-//     let row = sqlx::query!(
-//         "UPDATE todo_item SET title = ?, list_id = ?, checked = ? WHERE id = ?",
-//         todo_item.title,
-//         todo_item.list_id,
-//         todo_item.checked,
-//         id
-//     )
-//     .execute(pool)
-//     .await?;
-
-//     Ok(format!("update {:?} record", row))
-// }
+pub async fn update_todo_item_by_id(
+    app_state: web::Data<AppState>,
+    update_todo_item: web::Json<UpdateTodoItem>,
+    params: web::Path<(i32, i32)>,
+) -> Result<HttpResponse, TodoListError> {
+    let (list_id, item_id) = params.into_inner();
+    update_todo_item_by_id_db(&app_state.db, list_id, item_id, update_todo_item.into())
+        .await
+        .map(|response| HttpResponse::Ok().json(response))
+}
